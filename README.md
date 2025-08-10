@@ -1,3 +1,6 @@
+# Render-Nest
+A Full Stack Video rendering application using Nextjs and ImageKit
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
