@@ -1,20 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function Register() {
+export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const validateEmail = (value: string) => {
-    if (!value) return null;
+    if (!value) return null; // don't warn while empty
     const pattern =
       /^(?:[a-zA-Z0-9_'^&/+-])+(?:\.(?:[a-zA-Z0-9_'^&/+-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
     return pattern.test(value) ? null : "Please enter a valid email address.";
@@ -26,7 +27,7 @@ export default function Register() {
     setEmailError(validateEmail(value));
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
@@ -35,40 +36,28 @@ export default function Register() {
     setEmailError(emailValidation);
     if (emailValidation) return;
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
     setLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 900));
-      setSuccess("Account created successfully.");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-      setEmailError(null);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.error || "Login failed");
+
+      setSuccess("Welcome back!");
+      router.push("/");
     } catch (err) {
-      console.error(err);
-      setError("Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
   };
 
-  const passwordStrength = (() => {
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-    return score;
-  })();
-
-  const emailHasError = Boolean(emailError);
-
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-[#0f0f0f] via-[#111] to-black text-slate-200 relative overflow-hidden font-sans">
+    <div className="min-h-screen w-full bg-gradient-to-b from-[#0f0f0f] via-[#111] to-black text-slate-200 relative overflow-hidden">
       {/* Decorative gradient orbs */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full blur-3xl opacity-40 bg-gradient-to-tr from-indigo-400 via-purple-500 to-pink-400 animate-pulse" />
@@ -84,12 +73,15 @@ export default function Register() {
         >
           <div className="mb-10 text-center">
             <h1 className="text-4xl font-[system-ui] font-semibold tracking-tight text-slate-100">
-              Create Your Account
+              Welcome back
             </h1>
+            <p className="mt-2 text-sm text-slate-400">
+              Please sign in to continue
+            </p>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-xl">
-            <form onSubmit={handleRegister} className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-5">
               {/* Email */}
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm text-slate-300">
@@ -101,16 +93,16 @@ export default function Register() {
                   value={email}
                   onChange={onEmailChange}
                   required
-                  aria-invalid={emailHasError}
-                  aria-describedby={emailHasError ? "email-error" : undefined}
+                  aria-invalid={Boolean(emailError)}
+                  aria-describedby={emailError ? "email-error" : undefined}
                   className={`w-full rounded-xl border px-4 py-3 text-slate-200 placeholder:text-slate-500 outline-none focus:ring-2 transition-colors ${
-                    emailHasError
+                    emailError
                       ? "border-rose-400/60 bg-black/40 focus:border-rose-400 focus:ring-rose-400/30"
                       : "border-white/10 bg-black/30 focus:border-indigo-400 focus:ring-indigo-400/30"
                   }`}
                   placeholder="you@example.com"
                 />
-                {emailHasError && (
+                {emailError && (
                   <p id="email-error" className="text-xs text-rose-300">
                     {emailError}
                   </p>
@@ -130,7 +122,7 @@ export default function Register() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 pr-12 text-slate-200 placeholder:text-slate-500 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/30"
-                    placeholder="At least 8 characters"
+                    placeholder="Your password"
                   />
                   <button
                     type="button"
@@ -143,55 +135,6 @@ export default function Register() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                <div className="mt-2 flex gap-1">
-                  {[0, 1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className={`h-1 w-1/4 rounded-full ${
-                        passwordStrength > i
-                          ? "bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400"
-                          : "bg-white/10"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Confirm Password */}
-              <div className="space-y-2">
-                <label htmlFor="confirm" className="text-sm text-slate-300">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="confirm"
-                    type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    className={`w-full rounded-xl border px-4 py-3 pr-12 text-slate-200 placeholder:text-slate-500 outline-none focus:ring-2 ${
-                      confirmPassword && confirmPassword !== password
-                        ? "border-rose-400/60 bg-black/40 focus:border-rose-400 focus:ring-rose-400/30"
-                        : "border-white/10 bg-black/30 focus:border-indigo-400 focus:ring-indigo-400/30"
-                    }`}
-                    placeholder="Re-enter your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((s) => !s)}
-                    className="absolute inset-y-0 right-3 flex items-center justify-center text-slate-400 hover:text-slate-200"
-                    aria-label={
-                      showPassword ? "Hide passwords" : "Show passwords"
-                    }
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {confirmPassword && confirmPassword !== password && (
-                  <p className="text-xs text-rose-300">
-                    Passwords don’t match.
-                  </p>
-                )}
               </div>
 
               {error && (
@@ -209,28 +152,28 @@ export default function Register() {
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 type="submit"
-                disabled={loading || emailHasError}
+                disabled={loading || Boolean(emailError)}
                 className="group relative inline-flex w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 py-3 font-medium text-white shadow-lg focus:outline-none disabled:opacity-60"
               >
                 <span className="absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_0%_0%,rgba(255,255,255,0.3)_0%,rgba(255,255,255,0)_40%)] opacity-30" />
-                {loading ? "Creating account…" : "Register"}
+                {loading ? "Signing in…" : "Login"}
               </motion.button>
             </form>
           </div>
 
+          {/* Downside links */}
           <p className="mt-6 text-center text-sm text-slate-400">
-            Already have an account?{" "}
+            Don’t have an account?{" "}
             <a
-              href="/login"
+              href="/register"
               className="font-medium text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
             >
-              Login
+              Create one
             </a>
           </p>
 
           <p className="mt-2 text-center text-xs text-slate-500">
-            By registering, you agree to our Terms of Service and Privacy
-            Policy.
+            By signing in, you agree to our Terms of Service and Privacy Policy.
           </p>
         </motion.div>
       </div>
