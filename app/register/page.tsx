@@ -1,9 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Register() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
@@ -26,6 +28,8 @@ export default function Register() {
     setEmailError(validateEmail(value));
   };
 
+  const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -42,14 +46,27 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 900));
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setError(data.message || "Registration failed. Please try again.");
+        return;
+      }
+      await delay(250);
       setSuccess("Account created successfully.");
+      await delay(250);
+      router.push("/login");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
       setEmailError(null);
     } catch (err) {
-      console.error(err);
+      console.error("Registration error:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -84,7 +101,7 @@ export default function Register() {
         >
           <div className="mb-10 text-center">
             <h1 className="text-4xl font-[system-ui] font-semibold tracking-tight text-slate-100">
-              Create Your Account
+              Create your account
             </h1>
           </div>
 
