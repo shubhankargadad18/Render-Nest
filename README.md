@@ -1,39 +1,94 @@
-# Render-Nest
-A Full Stack Video rendering application using Nextjs and ImageKit
+# 🎬 Full Stack Video Rendering Application
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+A modern full stack web application for **video rendering, uploading, and downloading** with smooth animations and cloud storage.
 
-## Getting Started
+Built with **Next.js, ImageKit, MongoDB, and Framer Motion**, it provides a production-ready platform for handling videos with authentication and optimized performance.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Features
+
+- 🔐 **Authentication**: Secure user authentication with [NextAuth](https://next-auth.js.org/).
+- 🎥 **Video Rendering**: Smooth and interactive video rendering powered by [Framer Motion](https://www.framer.com/motion/).
+- ⬆️ **Video Upload**: Upload videos directly to [ImageKit](https://imagekit.io/) for fast, global delivery.
+- ⬇️ **Video Download**: Secure and optimized video downloads from ImageKit.
+- 🗄️ **Database**: User and video metadata stored in [MongoDB](https://www.mongodb.com/).
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: [Next.js](https://nextjs.org/), [Framer Motion](https://www.framer.com/motion/)
+- **Authentication**: [NextAuth](https://next-auth.js.org/)
+- **Storage & Media Optimization**: [ImageKit](https://imagekit.io/)
+- **Database**: [MongoDB](https://www.mongodb.com/)
+- **Deployment**: [Vercel](https://vercel.com/) (recommended)
+
+---
+
+## 📂 Project Structure
+
+``` bash
+.
+├── components/ # Reusable React components
+├── pages/ # Next.js pages & API routes
+├── lib/ # Database connection, auth, and helper utilities
+├── public/ # Static assets
+├── styles/ # Global and module CSS
+├── package.json # Dependencies & scripts
+└── README.md
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ⚙️ Installation & Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Clone the repository
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+``` bash
+git clone https://github.com/your-username/render-nest.git
+cd render-nest
+```
 
-## Learn More
+### 2. Install dependencies with Yarn or NPM
 
-To learn more about Next.js, take a look at the following resources:
+``` bash
+yarn install
+# or
+npm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Set up environment variables (.env)  (optional)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+``` bash    
+cp .env.example .env
+```
 
-## Deploy on Vercel
+### 4. Start the development server
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+``` bash
+yarn dev
+# or
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 5. Build for production
+
+``` bash
+yarn build
+# or    
+npm run build
+```
+
+### 6. Deploy to Vercel
+
+``` bash
+vercel deploy
+```
+
+---
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
